@@ -5,25 +5,21 @@ defmodule Server do
     IO.puts("Starting Primy server")
     IO.puts(node())
     with :ok <- setupDatabase() do
-      pid = spawn(fn -> handlePrimeRequests() end)
+      pid = spawn(fn -> handlePrimeRequests(1000000000) end)
       Process.register(pid, :primy_server)
       {:ok, pid}
     end
   end
 
-  def handlePrimeRequests() do
-    IO.puts("listnening")
+  def handlePrimeRequests(number) do
     receive do
-      {:give_me_prime, pid} ->
+      {:give_me_number, pid} ->
         # send next prime to worker
-        IO.puts("give me a prime")
-        send(pid, {:new_prime, 777})
+        send(pid, {:new_number, number})
       {:store_prime, prime} ->
         storePrime(prime)
-      msg ->
-        IO.puts(["Unknown message", msg])
     end
-    handlePrimeRequests()
+    handlePrimeRequests(number + 1)
   end
 
   def setupDatabase() do
@@ -35,7 +31,7 @@ defmodule Server do
 
   def storePrime(prime) do
     ## storing logic here
-    IO.puts(["Saving prime number ", prime])
+    IO.puts(inspect(["Saving prime number ", prime]))
   end
 
 end
