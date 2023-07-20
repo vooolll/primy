@@ -1,13 +1,14 @@
 defmodule Worker do
 
   def listenTask() do
+    sendServer({:give_me_number, self()})
     # understand why it is not working with mix
     receive do
       {:new_number, number} ->
         #10 trys to test - completley arbitrary number
         case Fermat.test(number, 10) do
           :ok ->
-            sendServer({:store_prime, number})
+            sendServer({:found_prime, number, self()})
           :no ->
             sendServer({:give_me_number, self()})
           end
